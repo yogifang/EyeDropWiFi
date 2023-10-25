@@ -39,10 +39,14 @@ int tofBootSuccess = 0;
 
 ESP32Time rtc;
 ////////////////////////////////////////////////////////////////
-
+bool bToggle = false;
 
 void setup() {
   EEPROM.begin(EEPROM_SIZE);
+  initial_LED_Buzzer();
+ // analogWrite(Buzzer, 127);
+  LED(0,255,0);
+  //LED(0,0,0);
   Serial.begin(115200);
   SPIFFS.begin(true); // Will format on the first run after failing to mount
 
@@ -73,7 +77,7 @@ tofBootSuccess = initial_tof();
   }else{
     Serial.println("TOF: Failed to boot VL53L0X, please check the wiring.");
   }
-
+//analogWrite(Buzzer, 0);
 }
 
 void loop() {
@@ -84,25 +88,24 @@ void loop() {
   // The formattedDate comes with the following format:
   // 2018-05-28T16:00:13Z
   // We need to extract date and time
+  
+   // digitalWrite(Buzzer, bToggle ? HIGH : LOW);
+   // bToggle = !bToggle;
+
   formattedDate = timeClient.getFormattedTime();
  // Serial.println(formattedDate);
 
-  // Extract date
+ 
+  
   int splitT = formattedDate.indexOf("T");
   dayStamp = formattedDate.substring(0, splitT);
-//  Serial.print("DATE: ");
-//  Serial.println(dayStamp);
-  // Extract time
+
   timeStamp = formattedDate.substring(splitT + 1, formattedDate.length() - 1);
- // Serial.print("HOUR: ");
- // Serial.println(timeStamp);
- // Serial.println(WiFiSettings.restapi);
-
-
 
 if(tofBootSuccess){
-    tofSensor.add(lox.readRange());
-    tofSmoothedAvg = tofSensor.get();
+    
+    tofSmoothedAvg = tofSensor.get(); // get avg first
+    tofSensor.add(lox.readRange());  // write new value
     nowValue = tofSensor.getLast();
 
     if((digitalRead(getTrigger) == HIGH) && (nowValue > triggerThreshold)){
@@ -125,49 +128,43 @@ if(tofBootSuccess){
       }
     }
 
-    if(millis() - lastMillis > waitToRecord){
-      if(dropCount > 0){
-        // dropCount = round(dropCount/2.0);
-        // postAPI(dropCount);
-        unsigned long rtcTimeStamp = rtc.getEpoch();
-        Serial.println(rtcTimeStamp);
-        saveSingleDataToEEPROM(rtcTimeStamp, dropCount);
-        if(settings.tofDebug == '0'){
-          Serial.print("Final drop Count: ");
-          Serial.println(dropCount);
-        }
-        dropCount = 0;
-      }
-    }
-    if((nowValue-tofSmoothedAvg) > 5 ){
-     Serial.println(WiFi.localIP());
-      Serial.print(tofSmoothedAvg);
+   
+    if((nowValue-tofSmoothedAvg) > (tofSmoothedAvg*0.2)){
+    
+      Serial.print(tofSmoothedAvg);   
       Serial.print("\t");
       Serial.println(nowValue);
-      Serial.println(WiFiSettings.restapi);
- 
-      HTTPClient http;
-      http.begin("https://ocuelar-portal-web.vercel.app/api/devices/test");
-
-      // Data to send with HTTP POST
-      String httpRequestData = "{ \"id\" : \"101\", \"name\": \"inzamam\", \"description\": \"request body in json form\"}";           
-      // Send HTTP POST request
-      int httpResponseCode = http.POST("{ \"id\" : \"101\", \"name\": \"inzamam\", \"description\": \"request body in json form\"}");
-      if (httpResponseCode>0) {
-        Serial.print("HTTP Response code: ");
-        Serial.println(httpResponseCode);
-        String payload = http.getString();
-        Serial.println(payload);
-      }
-      else {
-        Serial.print("Error code: ");
-        Serial.println(httpResponseCode);
-      }
-      
-        
-      // Free resources
-      http.end();
+      dropCount++ ;
     }
+
+     if((WiFi.status() == WL_CONNECTED) && dropCount > 0){
+        
+            HTTPClient http;
+            http.begin(WiFiSettings.restapi);
+            // Data to send with HTTP POST
+            char httpRequestData[256] ;
+            sprintf(httpRequestData, "{\"timestamp\":%d,\"device_id\":\"%s\",\"count\":%d}", rtc.getEpoch() , WiFiSettings.device_id ,dropCount);
+            dropCount = 0;
+        //  sprintf(httpRequestDa ta, "{\"timestamp\":%d, \"device_id\":\"%s\"}", rtc.getEpoch(),"abc");
+            Serial.println(httpRequestData);
+            // Send HTTP POST request
+              http.addHeader("Content-Type", "application/json");
+      // Data to send with HTTP POST
+            int httpResponseCode = http.POST(httpRequestData);
+            if (httpResponseCode>0) {     
+              String payload = http.getString();
+              Serial.println(payload);
+            }
+            else {
+          //    Serial.print("Error code: ");
+          //    Serial.println(httpResponseCode);
+            }
+      // Free resources
+          http.end();
+       
+     }
+     
+    
     }
     
 

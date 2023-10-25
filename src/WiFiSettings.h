@@ -27,6 +27,7 @@ class WiFiSettingsClass {
 
         String hostname;
         String password;
+        String device_id;
         bool secure;
         String language;
         String restapi ;

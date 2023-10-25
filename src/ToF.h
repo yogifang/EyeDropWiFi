@@ -25,6 +25,7 @@ int initial_tof() {
       delay(1000);
   };
   lox.configSensor(Adafruit_VL53L0X::VL53L0X_SENSE_HIGH_SPEED);
+ 
   lox.startRangeContinuous();   // start continuous ranging
 
   tofSensor.begin(SMOOTHED_AVERAGE, 32);

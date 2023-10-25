@@ -2,6 +2,7 @@
 #ifdef ESP32
 #define ESPFS SPIFFS
 #define ESPMAC (Sprintf("%06" PRIx64, ESP.getEfuseMac() >> 24))
+#define ESPMAC_FULL (Sprintf("%12" PRIx64, ESP.getEfuseMac()))
 #include <SPIFFS.h>
 #include <WebServer.h>
 #include <WiFi.h>
@@ -426,7 +427,7 @@ void WiFiSettingsClass::portal() {
  http.sendContent(_WSL_T.url_restapi);
     http.sendContent(F(":<br><input name=url_restapi value='"));
 
-    http.sendContent("https://ocuelar-portal-web.vercel.app/api/devices/test");
+    http.sendContent("https://ocuelar-portal-web.vercel.app/api/devices/record");
     http.sendContent(F("'></label><hr>"));
 
     for (auto &p : params) {
@@ -526,7 +527,7 @@ bool WiFiSettingsClass::connect(bool portal, int wait_seconds) {
   String pw = slurp("/wifi-password");
   restapi = slurp("/rest-api");
   if(restapi.length() == 0){
-    restapi = "https://ocuelar-portal-web.vercel.app/api/devices/test";
+    restapi = "https://ocuelar-portal-web.vercel.app/api/devices/record";
   }
   Serial.println(restapi);
   Serial.println(pw);
@@ -585,8 +586,11 @@ void WiFiSettingsClass::begin() {
   WiFiSettingsLanguage::select(_WSL_T, language); // can update language
 
 
-  if (hostname.endsWith("-"))
+  if (hostname.endsWith("-")){
     hostname += ESPMAC;
+    device_id = ESPMAC_FULL;
+  }
+  
 }
 
 WiFiSettingsClass::WiFiSettingsClass() {
