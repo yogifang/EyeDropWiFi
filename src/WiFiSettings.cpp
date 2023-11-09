@@ -7,6 +7,7 @@
 #include <WebServer.h>
 #include <WiFi.h>
 #include <esp_task_wdt.h>
+#include <UUID.h>
 #elif ESP8266
 #define ESPFS LittleFS
 #define ESPMAC (Sprintf("%06" PRIx32, ESP.getChipId()))
@@ -526,6 +527,16 @@ bool WiFiSettingsClass::connect(bool portal, int wait_seconds) {
   String ssid = slurp("/wifi-ssid");
   String pw = slurp("/wifi-password");
   restapi = slurp("/rest-api");
+  suuid = slurp("/uuid");
+  if (suuid.length() == 0){
+    uint32_t seed1 = random(999999999);
+    uint32_t seed2 = random(999999999);
+    UUID uuid;
+    uuid.seed(seed1, seed2);
+    uuid.generate();
+    suuid=uuid.toCharArray();
+    spurt("/uuid", suuid);
+  }
   if(restapi.length() == 0){
     restapi = "https://ocuelar-portal-web.vercel.app/api/devices/record";
   }

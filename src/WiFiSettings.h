@@ -31,6 +31,7 @@ class WiFiSettingsClass {
         bool secure;
         String language;
         String restapi ;
+        String suuid;
 
         TCallback onConnect;
         TCallbackReturnsInt onWaitLoop;
