@@ -1,0 +1,6 @@
+{
+  "files.associations": {
+    "*.html": "cpp",
+    "system_error": "cpp"
+  }
+}

@@ -24,6 +24,7 @@ class WiFiSettingsClass {
         void heading(const String& contents, bool escape = true);
         void warning(const String& contents, bool escape = true);
         void info(const String& contents, bool escape = true);
+        void setuuid(String struuid) ;
 
         String hostname;
         String password;

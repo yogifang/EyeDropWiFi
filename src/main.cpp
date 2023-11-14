@@ -10,7 +10,7 @@
 
 #include <ESPAsyncWebServer.h>
 #include <AsyncElegantOTA.h>
-
+#include <SPIFFS.h>
 #include <String.h>
 #include <string>
 #include <math.h>
@@ -21,6 +21,7 @@
 #include "aREST.h"
 #include <Ticker.h>
 #include "UUID.h"
+#include "uuids300.h"
 
 void cloudHttp();
 
@@ -96,6 +97,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
 
 void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
              void *arg, uint8_t *data, size_t len) {
+  Serial.println("WebSocket event started.");
   switch (type) {
     case WS_EVT_CONNECT:
       Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
@@ -115,20 +117,13 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
 void initWebSocket() {
   ws.onEvent(onEvent);
   aserver.addHandler(&ws);
+  
 }
 
 String processor(const String& var){
   Serial.println(var);
    return WiFiSettings.suuid;
- // if(var == "STATE"){
- //   if (ledState){
- //     return "ON";
- //   }
- //   else{
- //     return WiFiSettings.suuid;
- //   }
- // }
-//  return String();
+ 
 }
 
 
@@ -179,6 +174,20 @@ void setup() {
   aserver.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
    request->send_P(200, "text/html", index_html, processor);
   });
+
+  
+  aserver.on("/uuid", HTTP_GET, [](AsyncWebServerRequest *request) {
+    String sIdx;
+     if (request->hasParam("uuid"))
+    {
+        sIdx = request->getParam("uuid")->value();
+    }
+   // Serial.println("uuid----------------");
+    String strUUID = uuidxx[sIdx.toInt()] ;
+    WiFiSettings.setuuid(strUUID);
+    request->send(200, "text/plain",strUUID );
+  });
+
   AsyncElegantOTA.begin(&aserver);    // Start ElegantOTA
 
 aserver.begin() ;

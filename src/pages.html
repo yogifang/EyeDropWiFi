@@ -1,7 +1,7 @@
 const char index_html[] PROGMEM = R"rawliteral( <!DOCTYPE html>
 <html>
   <head>
-    <title>Ocuelar EyeDrop Server</title>
+    <title>Ocuelar EyeDrop Device</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="data:," />
     <style>
@@ -65,19 +65,24 @@ const char index_html[] PROGMEM = R"rawliteral( <!DOCTYPE html>
         font-weight: bold;
       }
     </style>
-    <title>Ocuelar EyeDrop Server</title>
+    <title>Ocuelar EyeDrop Device</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="data:," />
   </head>
   <body>
     <div class="topnav">
-      <h1>Ocuelar EyeDrop Server</h1>
+      <h1>Ocuelar EyeDrop Device</h1>
     </div>
     <div class="content">
       <div class="card">
         <h2>Device UUID</h2>
         <p class="state"><span id="state">%STATE%</span></p>
-        <p>Version 1.00.001</p>
+        <form action="/uuid">
+          <label for="quantity">PreBuild UUID (0 ~ 299):</label>
+          <input type="number" id="uuid" name="uuid" min="0" max="299" />
+          <input type="submit" />
+        </form>
+        <p>Version 1.01.001</p>
         <p><button id="button" class="button" onclick="location.href = 'update';">Update Firmware</button></p>
       </div>
     </div>

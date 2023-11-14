@@ -252,6 +252,11 @@ void WiFiSettingsClass::html(const String &tag, const String &contents,
   params.push_back(x);
 }
 
+void WiFiSettingsClass::setuuid(String struuid){
+  suuid = struuid;
+  spurt("/uuid", suuid);
+}
+
 void WiFiSettingsClass::info(const String &contents, bool escape) {
   html(F("p class=i"), contents, escape);
 }
