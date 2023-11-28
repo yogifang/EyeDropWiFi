@@ -8,11 +8,12 @@
 #include <WiFiClient.h>
 #include <HTTPClient.h>
 
+
+
 #include <ESPAsyncWebServer.h>
 #include <AsyncElegantOTA.h>
 #include <SPIFFS.h>
 #include <String.h>
-#include <string>
 #include <math.h>
 #include <ESP32Time.h>
 #include "ESP32_LED.h"
@@ -45,6 +46,10 @@ AsyncWebSocket ws("/ws");
 #define TEST_CHARACTERISTIC_UUID 0x9000
 #define triggerThreshold 60
 #define waitToRecord 2000
+#define Buzzer A2
+#define getTrigger RX
+#define pushEnable TX
+
 uint16_t tofSmoothedAvg;
 uint16_t nowValue;
 uint16_t realTimeValue;
@@ -128,15 +133,33 @@ String processor(const String& var){
 
 
 
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 void setup() {
   EEPROM.begin(EEPROM_SIZE);
   initial_LED_Buzzer();
- // analogWrite(Buzzer, 127);
- // LED(0,255,0);
+  analogWrite(Buzzer, 127);
+  // LED(0,255,0);
   LED(0,0,0);
   Serial.begin(115200);
-  
+
   SPIFFS.begin(true); // Will format on the first run after failing to mount
+
+  pinMode(getTrigger, INPUT);
+  pinMode(pushEnable, OUTPUT);
+  pinMode(Buzzer, OUTPUT);
+
+  digitalWrite(pushEnable, HIGH);
+
+ // while(1){
+  //   analogWrite(Buzzer, 127);
+  //   delay(200);
+  //   analogWrite(Buzzer, 0);
+  //   delay(300);
+  //   Serial.print(".");
+  //}
+
 
   // Use stored credentials to connect to your WiFi access point.
   // If no credentials are stored or if the access point is out of reach,
@@ -150,19 +173,19 @@ void setup() {
 
   server.begin();
   Serial.println("Server started");
-   
+  
 
    Serial.println(WiFiSettings.suuid);
    Serial.println(WiFi.localIP());
    Serial.println(WiFi.getHostname());
-   timeClient.begin();
+  timeClient.begin();
   // Set offset time in seconds to adjust for your timezone, for example:
   // GMT +1 = 3600
   // GMT +8 = 28800
   // GMT -1 = -3600
   // GMT 0 = 0
   timeClient.setTimeOffset(0);
-  ticker.attach(5, cloudHttp);
+ticker.attach(5, cloudHttp);
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
   tofBootSuccess = initial_tof();
   if(tofBootSuccess){
@@ -192,15 +215,17 @@ void setup() {
 
 aserver.begin() ;
 
+  digitalWrite(pushEnable, HIGH);
 
 }
 
 
 
 void loop() {
-
-  ws.cleanupClients();
   
+  ws.cleanupClients();
+     
+
 if(lox.isRangeComplete() || tofBootSuccess){ 
     tofSmoothedAvg = tofSensor.get(); // get avg first
     nowValue = lox.readRange(); // get new value  
@@ -211,6 +236,11 @@ if(lox.isRangeComplete() || tofBootSuccess){
       Serial.print("\t");
       Serial.println(distance);
       dropCount++ ;
+      analogWrite(Buzzer, 128);
+     delay(200);
+     analogWrite(Buzzer, 0);
+     delay(300);
+
     } else {
        tofSensor.add(nowValue);  // write new value
       // Serial.print("+" );
@@ -234,7 +264,7 @@ void cloudHttp() {
             char httpRequestData[256] ;
             
             sprintf(httpRequestData, "{\"timestamp\":%d,\"device_id\":\"%s\",\"count\":%d}", rtc.getEpoch() , WiFiSettings.suuid.c_str() ,dropCount);
-      //        Serial.println(httpRequestData);
+//        Serial.println(httpRequestData);
             dropCount = 0;
             http.addHeader("Content-Type", "application/json");
       // Data to send with HTTP POST
