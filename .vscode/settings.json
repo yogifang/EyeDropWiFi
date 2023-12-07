@@ -1,6 +1,7 @@
 {
   "files.associations": {
     "*.html": "cpp",
-    "system_error": "cpp"
+    "system_error": "cpp",
+    "iterator": "cpp"
   }
 }

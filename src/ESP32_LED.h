@@ -1,6 +1,6 @@
 
-#define LED_r 10
-#define LED_w 9
+#define LED_r 9
+#define LED_w 10
 #define LED_g 8
 #define Buzzer A2
 #define getTrigger RX
@@ -21,7 +21,7 @@ void initial_LED_Buzzer() {
   pinMode(LED_g, OUTPUT);
   pinMode(getTrigger, INPUT);
   
-  pinMode(pushEnable, OUTPUT);
+  pinMode(pushEnable, INPUT);
   digitalWrite(pushEnable, HIGH);
 
   pinMode(Buzzer, OUTPUT);

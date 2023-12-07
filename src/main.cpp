@@ -229,18 +229,23 @@ void loop() {
 if(lox.isRangeComplete() || tofBootSuccess){ 
     tofSmoothedAvg = tofSensor.get(); // get avg first
     nowValue = lox.readRange(); // get new value  
-    uint16_t distance = lox.readRange();
+  //  uint16_t distance = lox.readRange();
     
-    if(((nowValue-tofSmoothedAvg) > 7) && tofSmoothedAvg > 0){
+    if(((nowValue-tofSmoothedAvg) > 7) && tofSmoothedAvg > 0 ){
       Serial.print(tofSmoothedAvg);   
       Serial.print("\t");
-      Serial.println(distance);
-      dropCount++ ;
-      analogWrite(Buzzer, 128);
-     delay(200);
-     analogWrite(Buzzer, 0);
-     delay(300);
-
+      Serial.print(nowValue);
+      Serial.print("\t");
+      Serial.println(digitalRead(getTrigger));
+      tofSensor.add(nowValue);  // write new value
+      if(digitalRead(getTrigger) == HIGH){
+        dropCount++ ;
+        analogWrite(Buzzer, 128);
+        delay(200);
+        analogWrite(Buzzer, 0);
+        delay(300);
+      }
+     
     } else {
        tofSensor.add(nowValue);  // write new value
       // Serial.print("+" );
