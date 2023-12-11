@@ -336,8 +336,8 @@ void WiFiSettingsClass::portal() {
           "<meta name=viewport content='width=device-width,initial-scale=1'>"
           "<style>"
           "*{box-sizing:border-box} "
-          "html{background:#444;font:10pt sans-serif}"
-          "body{background:#ccc;color:black;max-width:30em;padding:1em;margin:"
+          "html{background:#fff;font:10pt sans-serif}"
+          "body{background:#fff;color:black;max-width:30em;padding:1em;margin:"
           "1em auto}"
           "a:link{color:#000} "
           "label{clear:both}"
@@ -355,9 +355,10 @@ void WiFiSettingsClass::portal() {
           ".w,.i{background:#aaa;min-height:3em}"
           "</style>"
           "<form action=/restart method=post>"));
-    http.sendContent(F("<input type=submit value=\""));
-    http.sendContent(_WSL_T.button_restart);
-    http.sendContent(F("\"></form><hr><h1>"));
+    //http.sendContent(F("<input type=submit value=\""));
+   // http.sendContent(_WSL_T.button_restart);
+//  http.sendContent(F("\"></form><hr><h1>"));
+  http.sendContent(F("</form><hr><h1>"));
     http.sendContent(_WSL_T.title);
     http.sendContent(F("</h1><form method=post><label>"));
     http.sendContent(_WSL_T.ssid);
@@ -430,20 +431,16 @@ void WiFiSettingsClass::portal() {
       http.sendContent(F("</select></label><hr>"));
     }
 
- http.sendContent(_WSL_T.url_restapi);
-    http.sendContent(F(":<br><input name=url_restapi value='"));
-
-    http.sendContent("https://ocuelar-portal-web.vercel.app/api/devices/record");
-    http.sendContent(F("'></label><hr>"));
+    
 
     for (auto &p : params) {
       http.sendContent(p->html());
     }
 
-    http.sendContent(F("<p style='position:sticky;bottom:0;text-align:right'>"
+    http.sendContent(F("<p style='position:sticky;bottom:0;text-align:center;'>"
                        "<input type=submit value=\""));
     http.sendContent(_WSL_T.button_save);
-    http.sendContent(F("\"style='font-size:150%'></form>"));
+    http.sendContent(F("\"style='font-size:150%;background:#4bb2b6;'></form>"));
   });
 
   http.on("/", HTTP_POST, [this, &http]() {
@@ -484,6 +481,8 @@ void WiFiSettingsClass::portal() {
       http.send(302, "text/plain", "ok");
       if (onConfigSaved)
         onConfigSaved();
+        onRestart();
+          ESP.restart();
     } else {
       // Could be missing SPIFFS.begin(), unformatted filesystem, or broken
       // flash.
