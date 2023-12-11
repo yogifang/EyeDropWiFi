@@ -34,8 +34,8 @@ bool available(const String &language) {
   return languages.count(language) == 1;
 }
 
-bool multiple() { return languages.size() > 1; }
-
+//bool multiple() { return languages.size() > 1; }
+bool multiple() { return 0; }
 bool select(Texts &T, String &language) {
   if (!available(language)) {
     if (available("tw"))
@@ -46,14 +46,14 @@ bool select(Texts &T, String &language) {
 
 #if defined LANGUAGE_EN || defined LANGUAGE_ALL
   if (language == "en") {
-    T.title = F("OcuelarEyeDrop Configuration");
+    T.title = F("FLOUROMETHOLONE");
     T.portal_wpa = F("Protect the configuration portal with a WiFi password");
     T.portal_password = F("WiFi password for the configuration portal");
     T.init = "default";
     T.wait = F("Wait for it...");
     T.bye = F("Bye!");
     T.error_fs = F("Error while writing to flash filesystem.");
-    T.button_save = F("Save");
+    T.button_save = F("Connect");
     T.button_restart = F("Restart device");
     T.scanning_short = F("Scanning...");
     T.scanning_long = F("Scanning for WiFi networks...");
@@ -69,7 +69,7 @@ bool select(Texts &T, String &language) {
 
 #if defined LANGUAGE_TW || defined LANGUAGE_ALL
   if (language == "tw") {
-    T.title = F("OcuelarEyeDrop 設定");
+    T.title = F("FLOUROMETHOLONE 設定");
     T.portal_wpa = F("使用WiFi密碼保護");
     T.portal_password = F("配置的WiFi密碼");
     T.init = "默認";
@@ -92,7 +92,7 @@ bool select(Texts &T, String &language) {
 
 #if defined LANGUAGE_NL || defined LANGUAGE_ALL
   if (language == "nl") {
-    T.title = F("OcuelarEyeDrop Configuratie");
+    T.title = F("FLOUROMETHOLONE");
     T.portal_wpa = F("Beveilig de configuratieportal met een WiFi-wachtwoord");
     T.portal_password = F("WiFi-wachtwoord voor de configuratieportal");
     T.init = "standaard";
@@ -115,7 +115,7 @@ bool select(Texts &T, String &language) {
 
 #if defined LANGUAGE_DE || defined LANGUAGE_ALL
   if (language == "de") {
-    T.title = F("Konfiguration");
+    T.title = F("FLOUROMETHOLONE");
     T.portal_wpa = F("Das Konfigurationsportal mit einem Passwort schützen");
     T.portal_password = F("Passwort für das Konfigurationsportal");
     T.init = "Standard";
